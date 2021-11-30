@@ -1,4 +1,4 @@
-run('eeglab')
+run('artifact_plots')
 
 %% Section 1: preprocessing to filter out 50Hz
 %Source: https://dsp.stackexchange.com/a/1090/59989
@@ -39,8 +39,6 @@ tms_data = iddata(y_arm_values, (double(1:1:end_samples)*Ts)', y_arm.interval);
 na = 3; nb = 3; nk = 1;
 tms = arx(tms_data, [na nb nk])
 
-Ts = 1/EEG.srate; %PAZI OVO NE TREBA DA BUDE OVDE
-end_samples = EEG.pnts;
 %% Section 3: State space representation
 Ae = [- eeg.A(2:(p+1)); eye(p-1, p)];
 Ge = eye(p, 1);
@@ -63,17 +61,11 @@ C = [Ce Ct];
 
 % Tunning parameters:
 sigmaT2 = 1;    %WHY DOES THIS NOT MAKE ANY DIFFERENCE
-% pulse_start = 14080; % set to 250 when input_data uses the air sample
-% d = 5;
-% alpha = 0.05;
-% %d_tot = end_samples - pulse_start;
-% d_tot = 250;
-
-pulse_start = 145;
-d = 10;
+pulse_start = 14080; % set to 250 when input_data uses the air sample
+d = 5;
 alpha = 0.05;
 %d_tot = end_samples - pulse_start;
-d_tot = 40;
+d_tot = 250;
 
 % Process noise covariance:
 Q = zeros(30000*(ro+1), ro+1);
@@ -99,7 +91,7 @@ for t=1:30000
 end
 
 % Input to the system is the TMS pulse:
-t=0:Ts:(2-Ts);
+t=0:Ts:(3-Ts);
 tms_pulses=zeros(size(t));
 tms_pulses(pulse_start)=0.5;
 
@@ -107,10 +99,8 @@ tms_pulses(pulse_start)=0.5;
 f_alpha = 10;
 noise_data = rand(1, end_samples)*sqrt(sigmaE);
 brain_data = 80*10^(-3)*sin(2*pi*f_alpha*(0:Ts:(3-Ts)));
-test_data = brain_data(1:20000) + noise_data(1:20000) + tms_pulses(1:20000);
+test_data = brain_data + noise_data + tms_pulses;
 
 %Define the input data:
-%input_data = y_arm_values;
+input_data = y_arm_values;
 input_data = test_data;
-% input_data = double(data(1, :, 1));
-% input_data = input_data - mean(input_data);
