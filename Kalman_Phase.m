@@ -1,8 +1,11 @@
 %% Section 1: Experiment settings and general values
 Ts = 0.0001;                % Sampling Frequency
 sim_dur = 3;                % Used by Simulink
-num_rhythms = 2;            % Denoted as N
+num_rhythms = 1;            % Denoted as N
 num_samples = sim_dur/Ts;
+
+%WARNING!!! If you change num_rhythms, make sure to adapt input_data and f
+%to this!!!
 
 % Generate clean data for testing purposes:
 f_alpha = 8;                % Rhythm that we want to track
@@ -17,7 +20,7 @@ test_simple = brain_data';
 test_noise = (brain_data + noise_data)';
 test_multi = (brain_data + brain_data2)';
 
-input_data = test_multi;
+input_data = test_simple;
 tms_pulses = zeros(length(input_data), 2*num_rhythms);  % NO INPUT FOR NOW
 
 %% POTENTIALLY NOT NEEDED ANYMORE BECAUSE EM METHOD PICKS THE FREQ OF INTEREST?
@@ -39,14 +42,16 @@ tms_pulses = zeros(length(input_data), 2*num_rhythms);  % NO INPUT FOR NOW
 %input_data = filter(num, denum, input_data);
 
 %% Section 3: Parameter estimation
-f_single = f_alpha;
+f_single = [f_alpha];
 f_multi = [f_alpha, f_alpha2];
 
-f = f_multi;
+f = f_single;
 a = 0.99;
 omega = 2*pi*Ts*f;
 Q_const = noise_var;
 sigma2_R = 0.000000001;
+
+O_cell = cell(num_rhythms);
 
 for j = 1:num_rhythms
     O_j = [cos(omega(j)) -sin(omega(j)); sin(omega(j)) cos(omega(j))];
