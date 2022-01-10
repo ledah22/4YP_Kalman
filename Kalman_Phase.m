@@ -1,6 +1,6 @@
 %% Section 1: Experiment settings and general values
 Ts = 0.0001;                % Sampling Frequency
-sim_dur = 3;                % Used by Simulink
+sim_dur = 1.5;                % Used by Simulink
 num_rhythms = 1;            % Denoted as N
 num_samples = sim_dur/Ts;
 
@@ -8,12 +8,12 @@ num_samples = sim_dur/Ts;
 %to this!!!
 
 % Generate clean data for testing purposes:
-f_alpha = 8;                % Rhythm that we want to track
+f_alpha = 6;                % Rhythm that we want to track
 f_alpha2 = 12;
 ampl = 80*10^(-3);
 brain_data = ampl*sin(2*pi*f_alpha*(0:Ts:(sim_dur - Ts)));
 brain_data2 = ampl*4*sin(2*pi*f_alpha2*(0:Ts:(sim_dur - Ts)));
-noise_var = 0.001;
+noise_var = 0.001*80;
 noise_data = rand(1, num_samples)*sqrt(noise_var);
 
 test_simple = brain_data';
@@ -49,7 +49,7 @@ f = f_single;
 a = 0.99;
 omega = 2*pi*Ts*f;
 Q_const = noise_var;
-sigma2_R = 0.000000001;
+sigma2_R = 1;
 
 O_cell = cell(num_rhythms);
 
