@@ -23,7 +23,8 @@ for j= (length+1):(-1):2 % The paper is 0 indexed, MATLAB is 1 indexed
     Pt_1_prev = Ptt_1(ind_prev, :);
     Pt_1_curr = Ptt_1(ind_curr, :);
     Pt_prev = Ptt(ind_prev, :);
-    xt_prev = xtt(j-1, :);
+    %xt_prev = xtt(j-1, :);
+    xt_prev = xtt(j-1, 1:2);
     
     J = Pt_1_prev\Pt_prev*model.A'; %UNSTABLE INVERSES?
     xttN(j-1, 1:dimensions) = xt_prev+(xforwN-xt_prev*(model.A'))*(J');

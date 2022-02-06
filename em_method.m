@@ -1,13 +1,13 @@
 function [f, a, sigma]  = em_method(model, PttN, xttN, Ptt_1N, xforwN, PforwN)
 dimensions = model.state_dimensions;
-length = model.param_est_length;
+l = model.param_est_length;
 num_rhythms = model.num_rhythms;
 
 P_A = matrix_sum(PttN, dimensions);
 P_B = matrix_sum(Ptt_1N, dimensions);
-P_C = matrix_sum([PttN((length+1):((length+1)*dimensions), :); PforwN], dimensions);
+P_C = matrix_sum([PttN((dimensions+1):end, :); PforwN], dimensions);
 
-xtN = [xttN(2:length, :); xforwN];
+xtN = [xttN(2:l, :); xforwN];
 x_A_prod = matrix_product(xttN, xttN, dimensions);
 x_A = matrix_sum(x_A_prod, dimensions);
 x_B_prod = matrix_product(xtN, xttN, dimensions);
@@ -21,5 +21,5 @@ C_smooth = P_C+x_C;
 
 f = atan(rt(B_smooth, num_rhythms)./tr(B_smooth, num_rhythms));
 a = sqrt(rt(B_smooth, num_rhythms).^2+tr(B_smooth, num_rhythms).^2)./tr(A_smooth, num_rhythms);
-sigma = (tr(C_smooth, num_rhythms)-a.^2.*tr(A_smooth, num_rhythms))/(2*length);
+sigma = (tr(C_smooth, num_rhythms)-a.^2.*tr(A_smooth, num_rhythms))/(2*l);
 end

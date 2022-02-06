@@ -49,10 +49,10 @@ f_single = [f_alpha];
 f_multi = [f_alpha, f_alpha2];
 
 model.f = f_single;
-model.a = 0.99;
+model.a = 0.99*eye(2*model.num_rhythms);
 model.omega = 2*pi*model.Ts*model.f;
-Q_const = noise_var;
-sigma2_R = 1;
+model.Q_const = noise_var;
+model.sigma2_R = 1*eye(2*model.num_rhythms);
 
 O_cell = cell(model.num_rhythms);
 
