@@ -52,7 +52,7 @@ model.f = f_single;
 model.a = 0.99*eye(2*model.num_rhythms);
 model.omega = 2*pi*model.Ts*model.f;
 model.Q_const = noise_var;
-model.sigma2_R = 1*eye(2*model.num_rhythms);
+model.sigma2_R = 1;
 
 O_cell = cell(model.num_rhythms);
 
@@ -66,7 +66,7 @@ model.M = repmat([1 0], 1, model.num_rhythms);
 %% Section 4: Kalman filter state space
 % Initialisation
 model.x_0 = zeros(model.state_dimensions*model.num_rhythms, 1);
-model.Q = Q_const*eye(model.state_dimensions*model.num_rhythms);
+model.Q = model.Q_const*eye(model.state_dimensions*model.num_rhythms);
 
 %State space
 model.A = model.a*eye(model.state_dimensions*model.num_rhythms)*model.O;
@@ -76,5 +76,5 @@ model.C = model.M;
 
 %FOR NON-STATIONARY Q = zeros(num_samples*model.state_dimensions*num_rhythms, model.state_dimensions*num_rhythms);
 %R = sigma2_R*eye(1, num_samples);
-model.R = sigma2_R;
+model.R = model.sigma2_R;
 %Q = zeros(model.state_dimensions*num_rhythms, 2*num_rhythms);
