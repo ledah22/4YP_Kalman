@@ -1,28 +1,21 @@
-function [f, a, sigmaR]  = debug_parameter_estimation(Ptt, Ptt_1, xtt, model)
+function [f, a, sigmaR]  = debug_parameter_estimation(Ptt, Ptt_1, xtt, model, f_curr, a_curr, sigmaR_curr)
 
-%WARNING!!!!!! To-do: add dimensions_param = model.state_dimensions;
-%Right now, 2 is used as a dimension because Simulink complains when
-%variables are used for matrix dimensions. When the state space is
-%extended for artefact removal, change the 2's to a new value.
-%Warning No2: note the limits imposed on model parameters, such as how
-%many samples we use to do EM. If this starts causing errors, ensure
-%that you are using last n samples where n is at most the max used here.
+% Test with
+% [a1, a2, a3] = debug_parameter_estimation(out.Ptt(1:(model.param_est_length+1)*2, :), out.Ptt_1(1:2*(model.param_est_length+1), :), out.xtt(1:(model.param_est_length+1), :), model, 10.5, [0.99 0; 0 0.99], 1)
 
-f = model.f;
-a = model.a;
-sigmaR = model.sigma2_R;
-
-if length(xtt) == model.param_est_length+2
+if length(xtt) == model.param_est_length+1
     %%Backward Smoothing
     [PttN, xttN, Ptt_1N, xforwN, PforwN] = backward_smoothing(model, Ptt, Ptt_1, xtt);
     
     %%EM parameter estimation
-    [f, a, sigmaR]  = em_method(model, PttN, xttN, Ptt_1N, xforwN, PforwN);
-    
-    model.f = f;
-    model.a = a;
-    model.sigma2_R = sigmaR;
-    
+    [f_value, a_value, sigmaR_value]  = em_method(model, PttN, xttN, Ptt_1N, xforwN, PforwN);
+    f = f_value(1);
+    a = a_value(1:2, 1:2);
+    sigmaR = sigmaR_value(1);
+else
+    f = f_curr;
+    a = a_curr;
+    sigmaR = sigmaR_curr;
 end
 
     function [PttN, xttN, Ptt_1N, xforwN, PforwN] = backward_smoothing(model, Ptt, Ptt_1, xtt)
