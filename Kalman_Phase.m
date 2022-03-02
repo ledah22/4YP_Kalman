@@ -1,7 +1,7 @@
 %% Section 1: Experiment settings and general values
 model.state_dimensions = 2;
 model.Ts = 0.0005;                % Sampling Frequency
-model.sim_dur = 1.5;                % Used by Simulink
+model.sim_dur = 3;                % Used by Simulink
 model.num_rhythms = 1;            % Denoted as N
 model.num_samples = model.sim_dur/model.Ts;
 
@@ -11,7 +11,7 @@ model.param_est_length = 2000; %Number of starting samples used for parameter es
 %to this!!!
 
 % Generate clean data for testing purposes:
-f_alpha = 6;                % Rhythm that we want to track
+f_alpha = 8;                % Rhythm that we want to track
 f_alpha2 = 12;
 ampl = 80*10^(-3);
 brain_data = ampl*sin(2*pi*f_alpha*(0:model.Ts:(model.sim_dur - model.Ts)));
@@ -24,7 +24,8 @@ test_noise = (brain_data + noise_data)';
 test_multi = (brain_data + brain_data2)';
 
 input_data = test_simple;
-tms_pulses = zeros(length(input_data), model.state_dimensions*model.num_rhythms);  % NO INPUT FOR NOW
+%tms_pulses = zeros(length(input_data), model.state_dimensions*model.num_rhythms);  % NO INPUT FOR NOW
+tms_pulses = zeros(1, length(input_data));
 
 %% POTENTIALLY NOT NEEDED ANYMORE BECAUSE EM METHOD PICKS THE FREQ OF INTEREST?
 % CHECK ON REAL DATA AFTERWARDS TO CONFIRM
@@ -45,7 +46,7 @@ tms_pulses = zeros(length(input_data), model.state_dimensions*model.num_rhythms)
 %input_data = filter(num, denum, input_data);
 
 %% Section 3: Parameter estimation
-f_single = [f_alpha];
+f_single = [f_alpha+4.5];
 f_multi = [f_alpha, f_alpha2];
 
 model.f = f_single;
@@ -66,13 +67,16 @@ model.M = repmat([1 0], 1, model.num_rhythms);
 %% Section 4: Kalman filter state space
 % Initialisation
 model.x_0 = zeros(model.state_dimensions*model.num_rhythms, 1);
-model.Q = model.Q_const*eye(model.state_dimensions*model.num_rhythms);
+model.Q = model.Q_const*eye(model.state_dimensions*model.num_rhythms); %incorrect dim, scalar?
 
 %State space
 model.A = model.a*eye(model.state_dimensions*model.num_rhythms)*model.O;
-model.B=zeros(model.state_dimensions*model.num_rhythms);    %% this is where we could add tms?
+%model.B=zeros(model.state_dimensions*model.num_rhythms);    %% this is where we could add tms?
+model.B = [0; 0];
 model.Gm = model.Q;
 model.C = model.M;
+model.C = [[1 0]; [1 0]];
+model.D = 0;
 
 %FOR NON-STATIONARY Q = zeros(num_samples*model.state_dimensions*num_rhythms, model.state_dimensions*num_rhythms);
 %R = sigma2_R*eye(1, num_samples);
