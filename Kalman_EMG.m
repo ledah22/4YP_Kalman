@@ -57,6 +57,10 @@ B = [zeros(p, 1); Bt];
 G = Gm;
 C = [Ce Ct];
 
+%Initial values:
+x0 = [0.3 0 0 0 0 0];
+P0 = eye(ro+p);
+
 %% Section 4: Noise and sampling time
 
 % Tunning parameters:
