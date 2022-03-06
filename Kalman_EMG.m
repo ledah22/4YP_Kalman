@@ -63,9 +63,9 @@ C = [Ce Ct];
 sigmaT2 = 1;    %WHY DOES THIS NOT MAKE ANY DIFFERENCE
 pulse_start = 14080; % set to 250 when input_data uses the air sample
 d = 5;
-alpha = 0.05;
-%d_tot = end_samples - pulse_start;
-d_tot = 250;
+alpha = 0.5;
+d_tot = end_samples - pulse_start;
+%d_tot = 250;
 
 % Process noise covariance:
 Q = zeros(30000*(ro+1), ro+1);
@@ -99,7 +99,7 @@ tms_pulses(pulse_start)=0.5;
 f_alpha = 10;
 noise_data = rand(1, end_samples)*sqrt(sigmaE);
 brain_data = 80*10^(-3)*sin(2*pi*f_alpha*(0:Ts:(3-Ts)));
-test_data = brain_data + noise_data + tms_pulses;
+test_data = brain_data + tms_pulses;
 
 %Define the input data:
 input_data = y_arm_values;
