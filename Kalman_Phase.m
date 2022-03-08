@@ -4,8 +4,8 @@ model.Ts = 0.0005;                % Sampling Frequency
 model.sim_dur = 3;                % Used by Simulink
 model.num_rhythms = 1;            % Denoted as N
 model.num_samples = model.sim_dur/model.Ts;
-
-model.param_est_length = 2000; %Number of starting samples used for parameter estimation
+model.window = 5000;        % Length of the sliding window of available input data
+model.param_est_length = 2000;    %Number of starting samples used for parameter estimation
 
 %WARNING!!! If you change num_rhythms, make sure to adapt input_data and f
 %to this!!!
@@ -16,14 +16,17 @@ f_alpha2 = 12;
 ampl = 80*10^(-3);
 brain_data = ampl*sin(2*pi*f_alpha*(0:model.Ts:(model.sim_dur - model.Ts)));
 brain_data2 = ampl*4*sin(2*pi*f_alpha2*(0:model.Ts:(model.sim_dur - model.Ts)));
-noise_var = 0.001*80;
-noise_data = rand(1, model.num_samples)*sqrt(noise_var);
+
+strong_noise = rand(1, model.num_samples)*sqrt(ampl);
+weak_noise = rand(1, model.num_samples)*sqrt(ampl/100);
+noise_var = ampl/100; %ampl when using strong noise, ampl/100 for weak noise
 
 test_simple = brain_data';
-test_noise = (brain_data + noise_data)';
+test_noise_strong = (brain_data + strong_noise)';
+test_noise_weak = (brain_data + weak_noise)';
 test_multi = (brain_data + brain_data2)';
 
-input_data = test_simple;
+input_data = test_noise_weak;
 %tms_pulses = zeros(length(input_data), model.state_dimensions*model.num_rhythms);  % NO INPUT FOR NOW
 tms_pulses = zeros(1, length(input_data));
 
@@ -46,14 +49,21 @@ tms_pulses = zeros(1, length(input_data));
 %input_data = filter(num, denum, input_data);
 
 %% Section 3: Parameter estimation
-f_single = [f_alpha+4.5];
+f_single = [f_alpha];
 f_multi = [f_alpha, f_alpha2];
 
 model.f = f_single;
 model.a = 0.99*eye(2*model.num_rhythms);
 model.omega = 2*pi*model.Ts*model.f;
 model.Q_const = noise_var;
-model.sigma2_R = 1;
+model.sigma2_R = 10; %>=10 for strong noise, can even be zero for weak noise
+
+f_curr = model.f;
+a_curr = model.a;
+sigmaR_curr = model.sigma2_R;
+f = f_curr;
+a = a_curr;
+sigmaR = sigmaR_curr;
 
 O_cell = cell(model.num_rhythms);
 
@@ -82,3 +92,8 @@ model.D = 0;
 %R = sigma2_R*eye(1, num_samples);
 model.R = model.sigma2_R;
 %Q = zeros(model.state_dimensions*num_rhythms, 2*num_rhythms);
+
+xhat = zeros(model.window+1, 2);
+P = zeros(2*(model.window+1), 2);
+x_time = zeros(model.window+1, 2);
+P_time = zeros(2*(model.window+1), 2);

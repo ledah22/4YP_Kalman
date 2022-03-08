@@ -1,4 +1,4 @@
-function [] = phaseplot(output_data, Ts, input_data, plotHilbert)
+function [] = phaseplot(output_data, Ts, input_data, plotHilbert, clean_data)
 [l, num_rhythms] = size(output_data);
 
 figure
@@ -12,7 +12,7 @@ for j = 1:num_rhythms
 end
 
 if plotHilbert
-    input_data_analytical = hilbert(input_data);
+    input_data_analytical = hilbert(clean_data);
     input_data_phase = angle(input_data_analytical);
     
     hold on
