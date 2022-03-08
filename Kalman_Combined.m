@@ -29,14 +29,15 @@ if use_weak_noise
     noise_data = weak_noise;
 end
 
+tms_pulses=zeros(combined_model.num_samples, 1);
+pulse_start = 500; % set to 250 when input_data uses the air sample
+tms_pulses(pulse_start)=0.5;
+
 test_simple = brain_data';
 test_noise = (brain_data + noise_data)';
 test_multi = (brain_data + brain_data2)';
 
-input_data = test_simple;
-tms_pulses=zeros(size(t));
-pulse_start = 14080; % set to 250 when input_data uses the air sample
-tms_pulses(pulse_start)=0.5;
+input_data = test_simple + tms_pulses;
 
 %% Section 4: Noise characterisation
 
