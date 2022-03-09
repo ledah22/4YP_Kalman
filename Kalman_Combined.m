@@ -31,7 +31,7 @@ end
 
 tms_pulses=zeros(combined_model.num_samples, 1);
 pulse_start = 500; % set to 250 when input_data uses the air sample
-tms_pulses(pulse_start)=0.5;
+tms_pulses(pulse_start+2)=0.5;
 
 test_simple = brain_data';
 test_noise = (brain_data + noise_data)';
@@ -45,11 +45,12 @@ input_data = test_simple + tms_pulses;
 phase_sigmaT2 = 1;    %WHY DOES THIS NOT MAKE ANY DIFFERENCE
 d = 5;
 alpha = 0.5;
-d_tot = combined_model.num_samples - pulse_start;
+%d_tot = combined_model.num_samples - pulse_start;
+d_tot = 15;
 
 %from phase:
 Q2 = noise_var*eye(combined_model.phase_model_dimensions);
-R2 = 10;     % >=10 for strong noise, can even be zero for weak noise
+R2 = 1000;     % >=10 for strong noise, can even be zero for weak noise
 
 %% Artefact removal parameters
 %Prekontrolisi!!!!!!!!!!!!!!!!!!!!!>>>>>>
@@ -114,12 +115,12 @@ M = repmat([1 0], 1, combined_model.num_rhythms);
 
 %% Section 3: State space representation - Phase tracking subsystem
 
-A2 = combined_model.a*eye(combined_model.phase_model_dimensions*combined_model.num_rhythms)*O;
+A2 = combined_model.a*O;
 B2 = [0; 0];
 C2 = M;
 
 %% Section 3: State space representation - Concatenated system
-combined_model.A = [A1 zeros(ro+p, combined_model.phase_model_dimensions)];
+combined_model.A = [A1 zeros(ro+p, combined_model.phase_model_dimensions); zeros(combined_model.phase_model_dimensions, ro+p), A2];
 combined_model.B = [B1; B2];
 combined_model.C = [zeros(1, ro+p) C2];
 combined_model.C = [combined_model.C; combined_model.C];
@@ -152,12 +153,12 @@ end
 combined_model.P0 = eye(ro+p+combined_model.phase_model_dimensions);
 combined_model.x_0 = zeros((ro+p+combined_model.phase_model_dimensions)*combined_model.num_rhythms, 1);
 
-f_curr = combined_model.f;
-a_curr = combined_model.a;
-sigmaR_curr = combined_model.R;
-f = f_curr;
-a = a_curr;
-sigmaR = sigmaR_curr;
+% f_curr = combined_model.f;
+% a_curr = combined_model.a;
+% sigmaR_curr = combined_model.R;
+% f = f_curr;
+% a = a_curr;
+% sigmaR = sigmaR_curr;
 
 xhat = zeros(combined_model.window+1, ro+p+combined_model.phase_model_dimensions);
 P = zeros((ro+p+combined_model.phase_model_dimensions)*(combined_model.window+1), ro+p+combined_model.phase_model_dimensions);
