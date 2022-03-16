@@ -13,7 +13,7 @@ end
 
 if plotHilbert
     input_data_analytical = hilbert(clean_data);
-    input_data_phase = angle(input_data_analytical);
+    input_data_phase = angle(i*input_data_analytical+clean_data);
     
     hold on
     plot(input_data_phase)
