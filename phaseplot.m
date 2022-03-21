@@ -13,8 +13,7 @@ end
 
 if plotHilbert
     input_data_analytical = hilbert(clean_data);
-    input_data_phase = angle(i*input_data_analytical+clean_data);
-    
+    input_data_phase = angle(i*input_data_analytical);
     hold on
     plot(input_data_phase)
     legend('Input signal', 'Phase', 'Hilbert Transform')
