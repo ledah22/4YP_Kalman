@@ -1,6 +1,6 @@
 run('artifact_plots')
 
-%% Section 1: preprocessing to filter out 50Hz
+%% Section 1: Preprocessing of EMG data to filter out 50Hz
 %Source: https://dsp.stackexchange.com/a/1090/59989
 fs = 1/y_arm.interval;
 fn = fs/2;
@@ -18,7 +18,7 @@ y_arm_values = filter(num, denum, y_arm.values);
 y_air_values = filter(num, denum, y_air.values);
 
 
-%% Section 2: define the system properties:
+%% Section 2: Define the system properties and testing data:
 
 using_real_data = 1; %Set to 0 if testing on synthesised data, set to 1 if using the EMG measurements
 end_samples_values = [3000, 30000];
@@ -28,15 +28,8 @@ Ts_values = [0.001, y_arm.interval];
 Ts = Ts_values(using_real_data+1);
 
 noise_count = 1.25/Ts;
-%meanE = mean(y_arm_values(1:noise_count));
-%sigmaE = sqrt(sum((y_arm_values(1:noise_count)-meanE).^2)/(noise_count-1));
-%sigmaE = (6.5*0.001/3); %%observed from the data, assume the range where most data can be found is +-3*sigma
 sigmaE = 0.025;
-
-%meanTMS = mean(y_air_values);       %%CHECK
-%sigmaV = double(sum((y_air_values - meanTMS).^2)/y_air.points);
 sigmaV = 0.25;
-%sigmaV = 0;
 
 % Input to the system is the TMS pulse:
 pulses_values = [500, 14080];
@@ -61,21 +54,13 @@ else
 end
 
 p = 3;
-% if using_real_data
-%     eeg = ar(y_arm_values(1:noise_count), p);
-%     tms_data = iddata(y_arm_values, (double(1:1:end_samples)*Ts)', y_arm.interval);
-% else
-%     eeg = ar(input_data(1:noise_count), p);
-%     tms_data = iddata(input_data', (double(1:1:end_samples)*Ts)', Ts);
-% end
-
 eeg = ar(input_data(1:noise_count), p);
 tms_data = iddata(input_data', (double(1:1:end_samples)*Ts)', Ts);
 
 na = 3; nb = 3; nk = 1;
 tms = arx(tms_data, [na nb nk])
 
-%% Section 3: State space representation
+%% Section 3: State-space representation
 Ae = [- eeg.A(2:(p+1)); eye(p-1, p)];
 Ge = eye(p, 1);
 Ce = eye(1, p);
